@@ -6,6 +6,7 @@ SRC = $(wildcard src/*.c)
 OUT = bin/neolang
 
 all:
+	mkdir -p bin
 	$(CC) $(CFLAGS) $(SRC) -o $(OUT)
 
 clean:

@@ -8,6 +8,7 @@ typedef enum
     TOKEN_IDENTIFIER,
     TOKEN_NUMBER,
     TOKEN_HEX,
+    TOKEN_STRING,
 
     TOKEN_VAR,
 

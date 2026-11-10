@@ -45,7 +45,7 @@ int lexer_lex(const char *filename, TokenList *tokens)
     FILE *file = fopen(filename,"r");
     if (!file)
     {
-        printf(C_RED"neolang: failed to open '%s'\n", filename);
+        printf(C_RED"neolang: failed to open '%s'\n"C_RESET, filename);
         return 1;
     }
 
@@ -290,18 +290,52 @@ int lexer_lex(const char *filename, TokenList *tokens)
                 }
                 i++;
             }
+            else if (buf[i] == '"')
+            {
+                int success = realloc_tokens(tokens,1);
+                if (success != 0)
+                {
+                    printf(C_RED"neolang: failed to add token\n"C_RESET);
+                    return 1;
+                }
+                i++;
+                int start = i;
+                tokens->tokens[tokens->count].column = i;
+                tokens->tokens[tokens->count].line = line;
+                tokens->tokens[tokens->count].type = TOKEN_STRING;
+                while (buf[i] != '"' && buf[i] != '\n' && buf[i] != '\0')
+                {
+                    i++;
+                    if (buf[i] == '\n' || buf[i] == '\0')
+                    {
+                        printf(C_RED"neolang: unclosed string on line %u\n"C_RESET, line);
+                        return 1;
+                    }
+                }
+                int n = i - start;
+                strncpy(tokens->tokens[tokens->count].lexeme,buf + start,n);
+                tokens->tokens[tokens->count].lexeme[n] = '\0';
+                tokens->count++;
+                i++;
+            }
             else 
             {
-                char short_buf[4];
+                char short_buf[2];
                 short_buf[0] = buf[i];
                 short_buf[1] = '\0';
-                add_token(tokens,short_buf,TOKEN_UNKNOWN,line,i);
-                printf(C_YELLOW"neolang: unknown token at column %d, line %u\n"C_RESET, i, line);
+                int success = add_token(tokens,short_buf,TOKEN_UNKNOWN,line,i);
+                if (success != 0)
+                {
+                    printf(C_RED"neolang: failed to add token\n"C_RESET);
+                    return 1;
+                }
+                printf(C_RED"neolang: unknown token at column %d, line %u\n"C_RESET, i, line);
                 i++;
             }
         }
         
     }
 
+    fclose(file);
     return 0;
 }

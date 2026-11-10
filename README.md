@@ -1,2 +1,2 @@
 # NeoLang
-The offical repository for the NeoLang project (WIP)
+The official repository for the NeoLang project (WIP)
